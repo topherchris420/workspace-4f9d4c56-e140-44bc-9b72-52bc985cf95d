@@ -7,6 +7,16 @@ import { RainLabVisualization } from '@/components/RainLabVisualization'
 import { LoadingScreen } from '@/components/LoadingScreen'
 import { EpistemicOverlay } from '@/components/EpistemicOverlay'
 import { ControlPanel } from '@/components/ControlPanel'
+import { useIsMobile } from '@/hooks/use-mobile'
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet"
+import { Button } from "@/components/ui/button"
+import { Settings, Play, Pause, RotateCcw } from "lucide-react"
 
 // Safe clipboard function with error handling
 const safeCopyToClipboard = async (text: string): Promise<boolean> => {
@@ -36,12 +46,77 @@ const safeCopyToClipboard = async (text: string): Promise<boolean> => {
   return false
 }
 
+interface MobileControlPanelProps {
+  isPlaying: boolean
+  onPlayPause: () => void
+  currentApparatus: 'biefeld-brown' | 'flux-capacitor' | 'zinsser' | 'electrokinetic-saucer'
+  onApparatusChange: (apparatus: 'biefeld-brown' | 'flux-capacitor' | 'zinsser' | 'electrokinetic-saucer') => void
+}
+
+function MobileControlPanel({
+  isPlaying,
+  onPlayPause,
+  currentApparatus,
+  onApparatusChange
+}: MobileControlPanelProps) {
+  const apparatusOptions = [
+    { id: 'biefeld-brown', name: 'Biefeld-Brown', description: 'Electrogravitic Force' },
+    { id: 'flux-capacitor', name: 'Flux Capacitor', description: 'Mass Fluctuation' },
+    { id: 'zinsser', name: 'Zinsser Module', description: 'Kinetobaric Impulse' },
+    { id: 'electrokinetic-saucer', name: 'Electrokinetic Saucer', description: 'Advanced Propulsion' }
+  ] as const
+
+  return (
+    <div className="absolute bottom-4 right-4 z-20">
+      <Sheet>
+        <SheetTrigger asChild>
+          <Button variant="outline" size="icon" className="bg-black/50 border-cyan-500/50">
+            <Settings className="h-6 w-6 text-cyan-400" />
+          </Button>
+        </SheetTrigger>
+        <SheetContent side="bottom" className="bg-black/90 border-t-cyan-500/50 text-white">
+          <SheetHeader>
+            <SheetTitle className="text-cyan-400">Controls</SheetTitle>
+          </SheetHeader>
+          <div className="py-4">
+            <div className="flex items-center justify-between mb-6">
+              <h4 className="text-cyan-300 text-lg font-medium">Playback</h4>
+              <Button onClick={onPlayPause} variant="outline" className="bg-transparent border-cyan-500/50">
+                {isPlaying ? <Pause className="w-5 h-5 mr-2 text-cyan-400" /> : <Play className="w-5 h-5 mr-2 text-cyan-400" />}
+                {isPlaying ? 'Pause' : 'Play'}
+              </Button>
+            </div>
+
+            <h4 className="text-cyan-300 text-lg font-medium mb-4">Apparatus</h4>
+            <div className="grid grid-cols-1 gap-3">
+              {apparatusOptions.map((option) => (
+                <Button
+                  key={option.id}
+                  variant={currentApparatus === option.id ? 'default' : 'outline'}
+                  onClick={() => onApparatusChange(option.id)}
+                  className={`w-full justify-start h-auto py-3 ${currentApparatus === option.id ? 'bg-cyan-600 border-cyan-500' : 'bg-transparent border-gray-700'}`}
+                >
+                  <div className="text-left">
+                    <div className="font-bold">{option.name}</div>
+                    <div className="text-xs text-gray-400">{option.description}</div>
+                  </div>
+                </Button>
+              ))}
+            </div>
+          </div>
+        </SheetContent>
+      </Sheet>
+    </div>
+  )
+}
+
 export default function Home() {
   const [phase, setPhase] = useState<'construction' | 'simulation' | 'deconstruction'>('construction')
   const [currentApparatus, setCurrentApparatus] = useState<'biefeld-brown' | 'flux-capacitor' | 'zinsser' | 'electrokinetic-saucer'>('biefeld-brown')
   const [resonanceLevel, setResonanceLevel] = useState(0)
   const [isPlaying, setIsPlaying] = useState(true)
   const [isLoading, setIsLoading] = useState(true)
+  const isMobile = useIsMobile()
 
   const apparatusSequence = [
     'biefeld-brown',
@@ -201,49 +276,63 @@ export default function Home() {
       </div>
 
       {/* UI Overlays */}
-      <EpistemicOverlay
-        phase={phase}
-        apparatus={currentApparatus}
-        resonanceLevel={resonanceLevel}
-      />
-      <ControlPanel
-        isPlaying={isPlaying}
-        onPlayPause={() => setIsPlaying(!isPlaying)}
-        currentApparatus={currentApparatus}
-        onApparatusChange={setCurrentApparatus}
-      />
+      {!isMobile && (
+        <EpistemicOverlay
+          phase={phase}
+          apparatus={currentApparatus}
+          resonanceLevel={resonanceLevel}
+        />
+      )}
+
+      {isMobile ? (
+        <MobileControlPanel
+          isPlaying={isPlaying}
+          onPlayPause={() => setIsPlaying(!isPlaying)}
+          currentApparatus={currentApparatus}
+          onApparatusChange={setCurrentApparatus}
+        />
+      ) : (
+        <ControlPanel
+          isPlaying={isPlaying}
+          onPlayPause={() => setIsPlaying(!isPlaying)}
+          currentApparatus={currentApparatus}
+          onApparatusChange={setCurrentApparatus}
+        />
+      )}
 
       {/* Title */}
-      <div className="absolute top-8 left-8 z-20">
-        <h1 className="text-4xl font-bold text-cyan-400 mb-2 tracking-wider">
+      <div className={`absolute top-4 left-4 md:top-8 md:left-8 z-20`}>
+        <h1 className="text-2xl md:text-4xl font-bold text-cyan-400 mb-1 md:mb-2 tracking-wider">
           R.A.I.N. Lab
         </h1>
-        <p className="text-cyan-200 text-sm opacity-80">
+        <p className="text-cyan-200 text-xs md:text-sm opacity-80">
           Recursive Artificial Intelligence Nexus
         </p>
       </div>
 
-      {/* Philosophical Quote */}
-      <div className="absolute bottom-8 right-8 z-20 max-w-md text-right">
-        <p className="text-cyan-300 text-sm italic opacity-70">
-          "Reality is a machine of interconnectivity and consciousness is a resonance algorithm exploring structural freedom through form."
-        </p>
-      </div>
-
-      {/* Debug Info */}
-      <div className="absolute bottom-4 left-4 z-20">
-        <div className="text-xs text-gray-500">
-          3D Status: <span className="text-green-400">Active</span> | 
-          Apparatus: <span className="text-cyan-400">{currentApparatus}</span> |
-          Phase: <span className="text-yellow-400">{phase}</span>
-        </div>
-        <div className="text-xs text-gray-500 mt-1">
-          <a href="/demo.html" className="text-cyan-400 underline">Standalone Demo</a> | 
-          <a href="/simple" className="text-cyan-400 underline ml-2">Simple Test</a> |
-          <a href="/minimal" className="text-cyan-400 underline ml-2">Minimal Test</a> |
-          <a href="/clipboard-test" className="text-cyan-400 underline ml-2">Clipboard Test</a>
-        </div>
-      </div>
+      {/* Philosophical Quote & Debug Info for Desktop */}
+      {!isMobile && (
+        <>
+          <div className="absolute bottom-8 right-8 z-20 max-w-md text-right">
+            <p className="text-cyan-300 text-sm italic opacity-70">
+              "Reality is a machine of interconnectivity and consciousness is a resonance algorithm exploring structural freedom through form."
+            </p>
+          </div>
+          <div className="absolute bottom-4 left-4 z-20">
+            <div className="text-xs text-gray-500">
+              3D Status: <span className="text-green-400">Active</span> |
+              Apparatus: <span className="text-cyan-400">{currentApparatus}</span> |
+              Phase: <span className="text-yellow-400">{phase}</span>
+            </div>
+            <div className="text-xs text-gray-500 mt-1">
+              <a href="/demo.html" className="text-cyan-400 underline">Standalone Demo</a> |
+              <a href="/simple" className="text-cyan-400 underline ml-2">Simple Test</a> |
+              <a href="/minimal" className="text-cyan-400 underline ml-2">Minimal Test</a> |
+              <a href="/clipboard-test" className="text-cyan-400 underline ml-2">Clipboard Test</a>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   )
 }
