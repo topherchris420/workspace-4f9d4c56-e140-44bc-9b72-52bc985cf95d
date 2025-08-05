@@ -3,6 +3,7 @@
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls, Environment } from '@react-three/drei'
 import { Suspense, useRef, useState, useEffect } from 'react'
+import { io, Socket } from 'socket.io-client'
 import { RainLabVisualization } from '@/components/RainLabVisualization'
 import { LoadingScreen } from '@/components/LoadingScreen'
 import { EpistemicOverlay } from '@/components/EpistemicOverlay'
@@ -42,6 +43,7 @@ export default function Home() {
   const [resonanceLevel, setResonanceLevel] = useState(0)
   const [isPlaying, setIsPlaying] = useState(true)
   const [isLoading, setIsLoading] = useState(true)
+  const socketRef = useRef<Socket | null>(null);
 
   const apparatusSequence = [
     'biefeld-brown',
@@ -49,6 +51,46 @@ export default function Home() {
     'zinsser',
     'electrokinetic-saucer'
   ] as const
+
+  // Effect for WebSocket connection
+  useEffect(() => {
+    // Initialize socket connection
+    const socket = io({ path: '/api/socketio' });
+    socketRef.current = socket;
+
+    socket.on('connect', () => {
+      console.log('Socket connected:', socket.id);
+    });
+
+    socket.on('disconnect', () => {
+      console.log('Socket disconnected');
+    });
+
+    // Listen for state updates from server
+    socket.on('initialState', (state: { currentApparatus: 'biefeld-brown' | 'flux-capacitor' | 'zinsser' | 'electrokinetic-saucer', isPlaying: boolean, phase: 'construction' | 'simulation' | 'deconstruction' }) => {
+      setCurrentApparatus(state.currentApparatus);
+      setIsPlaying(state.isPlaying);
+      setPhase(state.phase);
+    });
+
+    socket.on('newState', (state: { currentApparatus: 'biefeld-brown' | 'flux-capacitor' | 'zinsser' | 'electrokinetic-saucer', phase: 'construction' | 'simulation' | 'deconstruction' }) => {
+      setCurrentApparatus(state.currentApparatus);
+      setPhase(state.phase);
+    });
+
+    socket.on('newPhase', (phase: 'construction' | 'simulation' | 'deconstruction') => {
+      setPhase(phase);
+    });
+
+    socket.on('newPlayState', (isPlaying: boolean) => {
+      setIsPlaying(isPlaying);
+    });
+
+    // Cleanup on component unmount
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
 
   useEffect(() => {
     // Hide loading screen after 3 seconds
@@ -59,35 +101,6 @@ export default function Home() {
 
     return () => clearTimeout(loadingTimer)
   }, [])
-
-  useEffect(() => {
-    if (!isPlaying) return
-
-    const phaseDuration = 8000 // 8 seconds per phase
-    const apparatusInterval = phaseDuration * 3 // 24 seconds per apparatus
-
-    const phaseTimer = setInterval(() => {
-      setPhase(prev => {
-        if (prev === 'construction') return 'simulation'
-        if (prev === 'simulation') return 'deconstruction'
-        return 'construction'
-      })
-    }, phaseDuration)
-
-    const apparatusTimer = setInterval(() => {
-      setCurrentApparatus(prev => {
-        const currentIndex = apparatusSequence.indexOf(prev)
-        const nextIndex = (currentIndex + 1) % apparatusSequence.length
-        return apparatusSequence[nextIndex]
-      })
-      setPhase('construction')
-    }, apparatusInterval)
-
-    return () => {
-      clearInterval(phaseTimer)
-      clearInterval(apparatusTimer)
-    }
-  }, [isPlaying])
 
   useEffect(() => {
     const resonanceInterval = setInterval(() => {
@@ -208,9 +221,16 @@ export default function Home() {
       />
       <ControlPanel
         isPlaying={isPlaying}
-        onPlayPause={() => setIsPlaying(!isPlaying)}
+        onPlayPause={() => {
+          const newPlayState = !isPlaying;
+          setIsPlaying(newPlayState);
+          socketRef.current?.emit('playPause', newPlayState);
+        }}
         currentApparatus={currentApparatus}
-        onApparatusChange={setCurrentApparatus}
+        onApparatusChange={(newApparatus) => {
+          setCurrentApparatus(newApparatus);
+          socketRef.current?.emit('apparatusChange', newApparatus);
+        }}
       />
 
       {/* Title */}

@@ -1,0 +1,6 @@
+Connected to server!
+Received initial state: {
+  currentApparatus: 'biefeld-brown',
+  isPlaying: true,
+  phase: 'construction'
+}
