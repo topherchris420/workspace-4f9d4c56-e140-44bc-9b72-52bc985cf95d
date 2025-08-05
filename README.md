@@ -11,7 +11,7 @@
 [![Three.js](https://img.shields.io/badge/Three.js-r179-orange?style=for-the-badge&logo=three.js)](https://threejs.org/)
 [![Socket.IO](https://img.shields.io/badge/Socket.IO-4.8.1-green?style=for-the-badge&logo=socket.io)](https://socket.io/)
 
-[🎯 Demo](http://localhost:3000) • [📚 Documentation](#documentation) • [🤖 AI Assistant](https://chat.z.ai)
+[🎯 Demo](https://newproject-olive-xi.vercel.app/)) • [📚 Documentation](#documentation) • [🤖 AI Assistant](https://chat.z.ai)
 
 </div>
 
