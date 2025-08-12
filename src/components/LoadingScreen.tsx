@@ -31,7 +31,7 @@ export function LoadingScreen() {
             R.A.I.N. Lab
           </h1>
           <p className="text-cyan-200 text-lg opacity-80">
-            Recursive Artificial Intelligence Nexus
+            Recursive Architecture for Intelligent Nexus
           </p>
         </div>
         
