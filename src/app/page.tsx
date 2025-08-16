@@ -17,6 +17,8 @@ import {
 } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
 import { Settings, Play, Pause, RotateCcw } from "lucide-react"
+import { EffectComposer, Bloom } from '@react-three/postprocessing'
+import { KernelSize } from 'postprocessing'
 
 // Safe clipboard function with error handling
 const safeCopyToClipboard = async (text: string): Promise<boolean> => {
@@ -271,6 +273,16 @@ export default function Home() {
               maxDistance={30}
               minDistance={5}
             />
+
+            {/* Post-processing */}
+            <EffectComposer>
+              <Bloom
+                intensity={0.4}
+                luminanceThreshold={0.1}
+                luminanceSmoothing={0.8}
+                kernelSize={KernelSize.MEDIUM}
+              />
+            </EffectComposer>
           </Suspense>
         </Canvas>
       </div>
