@@ -3,6 +3,7 @@
 import { useRef, useEffect } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { Mesh, Group } from 'three'
+import { RoundedBox } from '@react-three/drei'
 
 interface BiefeldBrownApparatusProps {
   constructionProgress: number
@@ -102,14 +103,16 @@ export function BiefeldBrownApparatus({
         position={[1, 0, 0]}
         rotation={[0, 0, Math.PI / 6]}
       >
-        <boxGeometry args={[0.1, 3, 2]} />
-        <meshStandardMaterial
-          color="#ff4444"
-          metalness={0.8}
-          roughness={0.2}
-          emissive="#ff0000"
-          emissiveIntensity={0}
-        />
+        <RoundedBox args={[0.1, 3, 2]} radius={0.02} smoothness={4}>
+          <meshStandardMaterial
+            color="#aa2222"
+            metalness={0.9}
+            roughness={0.3}
+            emissive="#ff0000"
+            emissiveIntensity={0}
+            toneMapped={false}
+          />
+        </RoundedBox>
       </mesh>
 
       {/* Dielectric material */}
@@ -117,14 +120,17 @@ export function BiefeldBrownApparatus({
         ref={dielectricRef}
         position={[0, 0, 0]}
       >
-        <boxGeometry args={[0.3, 2.8, 1.8]} />
-        <meshStandardMaterial
-          color="#4444ff"
-          transparent
-          opacity={0.6}
-          roughness={0.9}
-          metalness={0.1}
-        />
+        <RoundedBox args={[0.3, 2.8, 1.8]} radius={0.05} smoothness={4}>
+          <meshPhysicalMaterial
+            color="#88aaff"
+            metalness={0.1}
+            roughness={0.1}
+            transmission={1.0}
+            thickness={1.0}
+            transparent
+            opacity={0.3}
+          />
+        </RoundedBox>
       </mesh>
 
       {/* Negative plate (trailing) */}
@@ -133,14 +139,16 @@ export function BiefeldBrownApparatus({
         position={[-1, 0, 0]}
         rotation={[0, 0, -Math.PI / 6]}
       >
-        <boxGeometry args={[0.1, 3, 2]} />
-        <meshStandardMaterial
-          color="#4444ff"
-          metalness={0.8}
-          roughness={0.2}
-          emissive="#0000ff"
-          emissiveIntensity={0}
-        />
+        <RoundedBox args={[0.1, 3, 2]} radius={0.02} smoothness={4}>
+          <meshStandardMaterial
+            color="#2222aa"
+            metalness={0.9}
+            roughness={0.3}
+            emissive="#0000ff"
+            emissiveIntensity={0}
+            toneMapped={false}
+          />
+        </RoundedBox>
       </mesh>
 
       {/* High voltage connections */}
@@ -149,13 +157,13 @@ export function BiefeldBrownApparatus({
           {/* Positive connection */}
           <mesh position={[1.5, 1.5, 0]}>
             <cylinderGeometry args={[0.02, 0.02, 1]} />
-            <meshStandardMaterial color="#ffaa00" metalness={0.9} />
+            <meshStandardMaterial color="#b87333" metalness={0.9} roughness={0.2} />
           </mesh>
           
           {/* Negative connection */}
           <mesh position={[-1.5, -1.5, 0]}>
             <cylinderGeometry args={[0.02, 0.02, 1]} />
-            <meshStandardMaterial color="#00aaff" metalness={0.9} />
+            <meshStandardMaterial color="#c0c0c0" metalness={0.9} roughness={0.2} />
           </mesh>
         </>
       )}
