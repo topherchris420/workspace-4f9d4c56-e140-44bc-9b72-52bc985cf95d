@@ -11,7 +11,7 @@
 [![Three.js](https://img.shields.io/badge/Three.js-r179-orange?style=for-the-badge&logo=three.js)](https://threejs.org/)
 [![Socket.IO](https://img.shields.io/badge/Socket.IO-4.8.1-green?style=for-the-badge&logo=socket.io)](https://socket.io/)
 
-[🎯 Website](https://vers3dynamics.com)) • [📚 Documentation](#documentation) • [🤖 Experiment](rainlab.vercel.app))
+[🎯 Website](https://vers3dynamics.com)) • [📚 Documentation](#documentation) • [🤖 Experiment](https://rainlab.vercel.app))
 
 </div>
 
